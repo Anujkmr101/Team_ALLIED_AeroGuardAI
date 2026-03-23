@@ -37,7 +37,7 @@ Follow these steps to run the AeroGuard Central Command locally.
 
 ### 1. Clone the Repository
 ```bash
-git clone [https://github.com/your-username/Team_ALLIED_AeroGuardAI.git](https://github.com/your-username/Team_ALLIED_AeroGuardAI.git)
+git clone (https://github.com/your-username/Team_ALLIED_AeroGuardAI.git)
 cd Team_ALLIED_AeroGuardAI
 ```
 
