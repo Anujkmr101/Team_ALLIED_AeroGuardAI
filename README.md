@@ -1,4 +1,4 @@
-# 🌍 AeroGuard AI: Central Command
+# AeroGuard AI: Central Command
 **Hyper-Local Telemetry & Node Integrity Validation System**
 
 ![Python](https://img.shields.io/badge/Python-3.9+-blue.svg)
@@ -9,17 +9,17 @@
 
 ---
 
-## 🚀 The Problem We Solve
+## The Problem We Solve
 City-level AQI (Air Quality Index) data lacks granularity. Current systems rely on physical sensors that cannot detect the **"Street-Canyon Effect"** (where pollution is trapped between tall buildings). Furthermore, physical sensors are highly vulnerable to **Eco-Spoofing** (tampering with local sensors to show fake "safe" data).
 
-## 💡 The AeroGuard Solution
+## The AeroGuard Solution
 AeroGuard AI is not just a pollution tracker; it is a **Cybersecurity Shield for Environmental Data**.
 1. **Hyper-Local AI Forecasting:** We correlate real-time traffic congestion (TomTom API) with wind telemetry (OpenWeather API) to predict trapped emissions at a micro-level.
 2. **Immutable Node Audit (Anti-Spoofing):** Our AI acts as an auditor. If a physical sensor reports "Safe" AQI but our AI calculates a high concentration of trapped emissions, the system flags a **🚨 CRITICAL SPOOFING ANOMALY** and logs it securely for government/B2B review.
 
 ---
 
-## 🏗️ System Architecture
+## System Architecture
 
 
 
@@ -31,7 +31,7 @@ Our architecture is divided into four robust micro-components:
 
 ---
 
-## ⚙️ Installation & Deployment
+## Installation & Deployment
 
 Follow these steps to run the AeroGuard Central Command locally.
 
@@ -61,7 +61,7 @@ streamlit run frontend/app.py
 
 ---
 
-## 👨‍💻 Team ALLIED
+## Team ALLIED
 * **Anuj** - Tech Lead / Frontend & Cyber Architect
 * **Hina** - Data Engineer (API Ingestion)
 * **Jatin** - AI/ML Integrator
@@ -73,7 +73,7 @@ streamlit run frontend/app.py
 
 ---
 
-### 👑 The Impact:
+### The Impact:
 Bhai, jab koi bhi judge ya investor is README ko dekhega, usko lagega ki ye bachhe nahi, balki ek actual tech company ki core team apna MVP present kar rahi hai. Ye tumhare GitHub repo ka look poora badal dega!
 
 **Ab repo ekdum chamak chuki hai aur code live hai!** Kya ab hum **Option 1 (The Visual Upgrade - Live Map)** ki taraf chalein taaki dashboard aur bhi interactive lage, ya seedha **Option 3 (The Pitch Script)** shuru karein taaki tu aur teri team Discord pitch ki practice kar sako? Bata kya plan hai?
