@@ -6,7 +6,6 @@
 ![SQLite](https://img.shields.io/badge/Database-SQLite-003B57.svg)
 ![Status](https://img.shields.io/badge/Status-Hackathon_MVP_Active-brightgreen.svg)
 
-> **Submission for the National Hackathon at Shivalik College of Engineering, Dehradun.** > Built with 💻 & 🛡️ by **Team ALLIED**.
 
 ---
 
