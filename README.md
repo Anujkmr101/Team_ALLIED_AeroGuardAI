@@ -67,13 +67,3 @@ streamlit run frontend/app.py
 * **Jatin** - AI/ML Integrator
 * **Jiya** - Cybersecurity & Database Engineer
 
----
-*AeroGuard AI - Because breathing clean air shouldn't require blind trust.*
-```
-
----
-
-### The Impact:
-Bhai, jab koi bhi judge ya investor is README ko dekhega, usko lagega ki ye bachhe nahi, balki ek actual tech company ki core team apna MVP present kar rahi hai. Ye tumhare GitHub repo ka look poora badal dega!
-
-**Ab repo ekdum chamak chuki hai aur code live hai!** Kya ab hum **Option 1 (The Visual Upgrade - Live Map)** ki taraf chalein taaki dashboard aur bhi interactive lage, ya seedha **Option 3 (The Pitch Script)** shuru karein taaki tu aur teri team Discord pitch ki practice kar sako? Bata kya plan hai?
