@@ -132,9 +132,11 @@ if app_mode == "Live Telemetry Engine":
                     if "error" not in real_sensor_data:
                         station_name = real_sensor_data['station_name']
                         actual_hardware_aqi = real_sensor_data['sensor_aqi']
+                        st.info(f"📍 **Physical Sensor ({station_name}):** AQI `{actual_hardware_aqi}`")
                     else:
                         station_name = f"Hardware near {selected_zone.split('(')[0].strip()}"
                         actual_hardware_aqi = 60 
+                        st.warning(f"⚠️ **Physical Sensor (Fallback):** AQI `{actual_hardware_aqi}`")
                         
                     st.markdown("#### 🔍 Explainable AI (Why this prediction?)")
                     speed_drop = traffic_data.get('free_flow_speed', 40) - traffic_data.get('current_speed', 40)
@@ -149,6 +151,8 @@ if app_mode == "Live Telemetry Engine":
                     difference = actual_hardware_aqi - ai_aqi
                     if difference > 50:
                         st.info(f"💡 **Mismatch Insight:** Sensor is {int(difference)} points higher. Our AI isolates local traffic emissions; the excess is likely background/industrial pollution.")
+                    elif difference < -50:
+                        st.error(f"🚨 **Security Insight:** The sensor is reading artificially lower than the physics-based AI calculation. Potential Hardware Masking or Spoofing!")
 
                 # --- GAP 3 FIX: HEALTH RISK ENGINE (NEW) ---
                 asthma_status, time_limit, mask_status, hex_color = get_health_risk(ai_aqi)
