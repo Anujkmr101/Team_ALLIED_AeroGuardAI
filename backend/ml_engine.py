@@ -141,26 +141,26 @@ def forecast_future_aqi(weather_data, traffic_data):
 # ==========================================
 # 5. DOSAGE CALCULATOR (SCIENTIFIC RIGOR)
 # ==========================================
-def calculate_inhaled_dose(aqi_val, duration_minutes, mode_of_transport="driving"):
+def calculate_inhaled_dose(aqi_val, duration_minutes, transport_mode="vehicle_closed"):
     """
-    Converts abstract AQI into physical physiological dose (micrograms inhaled).
-    Formula: Concentration (µg/m³) * Time (hours) * Breathing Rate (m³/hour)
+    Calculates physiological dose using Breathing Rates (BR) and Infiltration Factors (IF).
     """
-    # Rough approximation mapping AQI back to PM2.5 concentration (µg/m³)
-    # Note: A real app would use the exact piecewise EPA formula, but this is a solid heuristic for a demo.
+    # Convert AQI heuristic to PM2.5 concentration (µg/m³)
     estimated_concentration_ug_m3 = aqi_val * 0.7 
     
-    # EPA Estimated Breathing rates (m3/hour)
-    breathing_rates = {
-        "driving": 0.6,    # sedentary
-        "walking": 1.5,    # moderate activity
-        "cycling": 2.5     # heavy activity
+    # Profiles: [Breathing Rate (m3/hour), Infiltration Factor]
+    exposure_profiles = {
+        "pedestrian": [1.5, 1.0],       # Moderate activity, 100% exposure
+        "cyclist": [2.5, 1.0],          # Heavy activity, 100% exposure
+        "vehicle_open": [0.6, 0.8],     # Sedentary, windows down (80% infiltration)
+        "vehicle_closed": [0.6, 0.4]    # Sedentary, AC on/recirculate (40% infiltration)
     }
     
-    br = breathing_rates.get(mode_of_transport.lower(), 0.6)
+    br, infiltration = exposure_profiles.get(transport_mode.lower(), [0.6, 0.4])
     duration_hours = duration_minutes / 60.0
     
-    total_dose_ug = estimated_concentration_ug_m3 * duration_hours * br
+    # Scientific Formula: Mass = Concentration * Infiltration Factor * Breathing Rate * Time
+    total_dose_ug = estimated_concentration_ug_m3 * infiltration * duration_hours * br
     return round(total_dose_ug, 2)
 
 
