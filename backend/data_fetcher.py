@@ -6,7 +6,7 @@ import ee  # ADDED: Google Earth Engine
 # ==========================================
 # 1. ENVIRONMENT SETUP & SECURITY
 # ==========================================
-env_path = os.path.join(os.path.dirname(__file__), ".env")
+env_path = os.path.join(os.path.dirname(__file__), "..", ".env")
 # Load environment variables FIRST
 load_dotenv(dotenv_path=env_path)
 
