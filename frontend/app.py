@@ -145,7 +145,7 @@ def get_real_route_data(start_coords, end_coords, num_waypoints=8, is_bypass=Fal
 # 2. SIDEBAR NAVIGATION
 # ==========================================
 st.sidebar.markdown("<div class='text-micro' style='margin-bottom: 16px;'>Platform Modules</div>", unsafe_allow_html=True)
-app_mode = st.sidebar.radio("", [
+app_mode = st.sidebar.radio("Navigation", [
     "Live Exposure (Nowcast)", 
     "Forecast Hotspots", 
     "Route Optimizer", 
