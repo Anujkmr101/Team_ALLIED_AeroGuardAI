@@ -1,38 +1,38 @@
 import os
-import json
 from dotenv import load_dotenv
 import requests
-import ee
-from google.oauth2 import service_account  # Yeh add karna zaroori hai
+import ee  # ADDED: Google Earth Engine
 
 # ==========================================
 # 1. ENVIRONMENT SETUP & SECURITY
 # ==========================================
 env_path = os.path.join(os.path.dirname(__file__), ".env")
+# Load environment variables FIRST
 load_dotenv(dotenv_path=env_path)
 
 OPENWEATHER_API_KEY = os.getenv("OPENWEATHER_API_KEY")
 TOMTOM_API_KEY = os.getenv("TOMTOM_API_KEY")
-WAQI_API_KEY = os.getenv("WAQI_API_KEY")
+WAQI_API_KEY = os.getenv("WAQI_API_KEY") # The new CPCB Hardware API Key
+GEE_PROJECT_ID = os.getenv("GEE_PROJECT_ID") # Optional: Your Google Cloud Project ID for GEE
 
-# --- Initialize Google Earth Engine via Service Account ---
+# Debug check (Printing Boolean instead of raw keys to prevent leak during live demo)
+print("Looking for .env at:", env_path)
+print("OpenWeather Key Loaded:", bool(OPENWEATHER_API_KEY))
+print("TomTom Key Loaded:", bool(TOMTOM_API_KEY))
+print("WAQI (Hardware) Key Loaded:", bool(WAQI_API_KEY))
+
+# --- Initialize Google Earth Engine ---
 gee_initialized = False
-gee_json_str = os.getenv("GEE_KEY_JSON") # Secrets se JSON string aayegi
-
 try:
-    if gee_json_str:
-        # String ko wapas JSON dictionary mein convert karo
-        creds_dict = json.loads(gee_json_str)
-        # Service Account credentials banao
-        credentials = service_account.Credentials.from_service_account_info(creds_dict)
-        # EE ko credentials ke sath initialize karo
-        ee.Initialize(credentials, project=creds_dict.get('project_id'))
-        gee_initialized = True
-        print("✅ Google Earth Engine Initialized with Service Account!")
+    if GEE_PROJECT_ID:
+        ee.Initialize(project=GEE_PROJECT_ID)
     else:
-        print("⚠️ GEE_KEY_JSON not found in secrets. Skipping GEE.")
+        ee.Initialize()
+    gee_initialized = True
+    print("Google Earth Engine Initialized: True")
 except Exception as e:
-    print(f"❌ GEE Initialization failed! Error: {e}")
+    print("\n⚠️ GEE Initialization failed! Ensure you run 'ee.Authenticate()' in your terminal once.")
+    print(f"Error: {e}\n")
 
 
 # ==========================================
@@ -42,8 +42,7 @@ def get_live_weather(lat: float, lon: float) -> dict:
     """
     Fetch real-time wind speed (m/s) and temperature (°C) from OpenWeatherMap API.
     """
-    # Changed to HTTPS to prevent cloud blocking
-    url = f"https://api.openweathermap.org/data/2.5/weather?lat={lat}&lon={lon}&appid={OPENWEATHER_API_KEY}&units=metric"
+    url = f"http://api.openweathermap.org/data/2.5/weather?lat={lat}&lon={lon}&appid={OPENWEATHER_API_KEY}&units=metric"
     try:
         response = requests.get(url, timeout=10)
         response.raise_for_status()
@@ -53,7 +52,6 @@ def get_live_weather(lat: float, lon: float) -> dict:
             "wind_speed": data["wind"]["speed"]
         }
     except requests.exceptions.RequestException as e:
-        print(f"❌ DEBUG - Weather API Error: {e}") # Added for Streamlit Cloud Logs
         return {"error": f"Weather API request failed: {e}"}
 
 
@@ -72,7 +70,6 @@ def get_live_traffic(lat: float, lon: float) -> dict:
             "congestion_level": data["flowSegmentData"]["confidence"]
         }
     except requests.exceptions.RequestException as e:
-        print(f"❌ DEBUG - Traffic API Error: {e}") # Added for Streamlit Cloud Logs
         return {"error": f"Traffic API request failed: {e}"}
 
 
@@ -81,7 +78,6 @@ def get_real_hardware_aqi(lat: float, lon: float) -> dict:
     Fetch real-time AQI from the nearest physical CPCB hardware sensor using WAQI.
     """
     if not WAQI_API_KEY:
-        print("❌ DEBUG - WAQI API Key is missing!")
         return {"error": "WAQI API key missing in .env"}
 
     url = f"https://api.waqi.info/feed/geo:{lat};{lon}/?token={WAQI_API_KEY}"
@@ -97,10 +93,8 @@ def get_real_hardware_aqi(lat: float, lon: float) -> dict:
                 "station_name": data["data"]["city"]["name"]
             }
         else:
-            print(f"❌ DEBUG - WAQI returned error status: {data.get('data')}")
             return {"error": "Sensor station offline or not found."}
     except requests.exceptions.RequestException as e:
-        print(f"❌ DEBUG - WAQI API Error: {e}") # Added for Streamlit Cloud Logs
         return {"error": f"WAQI API request failed: {e}"}
 
 # --- ADDED: SATELLITE DATA FETCHER ---
@@ -110,7 +104,6 @@ def get_satellite_no2(lat: float, lon: float, buffer_meters: int = 1000) -> dict
     Useful as a static/historical baseline feature for the Forecasting Engine.
     """
     if not gee_initialized:
-        print("❌ DEBUG - Satellite Data Fetch Skipped: GEE not initialized.")
         return {"error": "Google Earth Engine not initialized."}
 
     try:
@@ -140,14 +133,10 @@ def get_satellite_no2(lat: float, lon: float, buffer_meters: int = 1000) -> dict
         if no2_val is not None:
             return {"satellite_no2_density": no2_val}
         else:
-            print("⚠️ DEBUG - Satellite NO2 data returned None (likely cloud cover).")
             return {"error": "No NO2 data available for this region today (likely cloud cover)."}
 
     except Exception as e:
-        print(f"❌ DEBUG - GEE Satellite API Error: {e}")
         return {"error": f"GEE API request failed: {e}"}
-    
-    
 
 # ==========================================
 # 3. SYSTEM TEST (Run this file directly to test)
