@@ -6,3 +6,4 @@ plotly
 scikit-learn
 xgboost
 python-dotenv
+earthengine-api
