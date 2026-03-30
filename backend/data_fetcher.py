@@ -1,38 +1,38 @@
 import os
+import json
 from dotenv import load_dotenv
 import requests
-import ee  # ADDED: Google Earth Engine
+import ee
+from google.oauth2 import service_account  # Yeh add karna zaroori hai
 
 # ==========================================
 # 1. ENVIRONMENT SETUP & SECURITY
 # ==========================================
 env_path = os.path.join(os.path.dirname(__file__), ".env")
-# Load environment variables FIRST
 load_dotenv(dotenv_path=env_path)
 
 OPENWEATHER_API_KEY = os.getenv("OPENWEATHER_API_KEY")
 TOMTOM_API_KEY = os.getenv("TOMTOM_API_KEY")
-WAQI_API_KEY = os.getenv("WAQI_API_KEY") # The new CPCB Hardware API Key
-GEE_PROJECT_ID = os.getenv("GEE_PROJECT_ID") # Optional: Your Google Cloud Project ID for GEE
+WAQI_API_KEY = os.getenv("WAQI_API_KEY")
 
-# Debug check (Printing Boolean instead of raw keys to prevent leak during live demo)
-print("Looking for .env at:", env_path)
-print("OpenWeather Key Loaded:", bool(OPENWEATHER_API_KEY))
-print("TomTom Key Loaded:", bool(TOMTOM_API_KEY))
-print("WAQI (Hardware) Key Loaded:", bool(WAQI_API_KEY))
-
-# --- Initialize Google Earth Engine ---
+# --- Initialize Google Earth Engine via Service Account ---
 gee_initialized = False
+gee_json_str = os.getenv("GEE_KEY_JSON") # Secrets se JSON string aayegi
+
 try:
-    if GEE_PROJECT_ID:
-        ee.Initialize(project=GEE_PROJECT_ID)
+    if gee_json_str:
+        # String ko wapas JSON dictionary mein convert karo
+        creds_dict = json.loads(gee_json_str)
+        # Service Account credentials banao
+        credentials = service_account.Credentials.from_service_account_info(creds_dict)
+        # EE ko credentials ke sath initialize karo
+        ee.Initialize(credentials, project=creds_dict.get('project_id'))
+        gee_initialized = True
+        print("✅ Google Earth Engine Initialized with Service Account!")
     else:
-        ee.Initialize()
-    gee_initialized = True
-    print("Google Earth Engine Initialized: True")
+        print("⚠️ GEE_KEY_JSON not found in secrets. Skipping GEE.")
 except Exception as e:
-    print("\n⚠️ GEE Initialization failed! Ensure you run 'ee.Authenticate()' in your terminal once.")
-    print(f"Error: {e}\n")
+    print(f"❌ GEE Initialization failed! Error: {e}")
 
 
 # ==========================================
