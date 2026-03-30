@@ -42,7 +42,8 @@ def get_live_weather(lat: float, lon: float) -> dict:
     """
     Fetch real-time wind speed (m/s) and temperature (°C) from OpenWeatherMap API.
     """
-    url = f"http://api.openweathermap.org/data/2.5/weather?lat={lat}&lon={lon}&appid={OPENWEATHER_API_KEY}&units=metric"
+    # Changed to HTTPS to prevent cloud blocking
+    url = f"https://api.openweathermap.org/data/2.5/weather?lat={lat}&lon={lon}&appid={OPENWEATHER_API_KEY}&units=metric"
     try:
         response = requests.get(url, timeout=10)
         response.raise_for_status()
@@ -52,6 +53,7 @@ def get_live_weather(lat: float, lon: float) -> dict:
             "wind_speed": data["wind"]["speed"]
         }
     except requests.exceptions.RequestException as e:
+        print(f"❌ DEBUG - Weather API Error: {e}") # Added for Streamlit Cloud Logs
         return {"error": f"Weather API request failed: {e}"}
 
 
@@ -70,6 +72,7 @@ def get_live_traffic(lat: float, lon: float) -> dict:
             "congestion_level": data["flowSegmentData"]["confidence"]
         }
     except requests.exceptions.RequestException as e:
+        print(f"❌ DEBUG - Traffic API Error: {e}") # Added for Streamlit Cloud Logs
         return {"error": f"Traffic API request failed: {e}"}
 
 
@@ -78,6 +81,7 @@ def get_real_hardware_aqi(lat: float, lon: float) -> dict:
     Fetch real-time AQI from the nearest physical CPCB hardware sensor using WAQI.
     """
     if not WAQI_API_KEY:
+        print("❌ DEBUG - WAQI API Key is missing!")
         return {"error": "WAQI API key missing in .env"}
 
     url = f"https://api.waqi.info/feed/geo:{lat};{lon}/?token={WAQI_API_KEY}"
@@ -93,8 +97,10 @@ def get_real_hardware_aqi(lat: float, lon: float) -> dict:
                 "station_name": data["data"]["city"]["name"]
             }
         else:
+            print(f"❌ DEBUG - WAQI returned error status: {data.get('data')}")
             return {"error": "Sensor station offline or not found."}
     except requests.exceptions.RequestException as e:
+        print(f"❌ DEBUG - WAQI API Error: {e}") # Added for Streamlit Cloud Logs
         return {"error": f"WAQI API request failed: {e}"}
 
 # --- ADDED: SATELLITE DATA FETCHER ---
@@ -104,6 +110,7 @@ def get_satellite_no2(lat: float, lon: float, buffer_meters: int = 1000) -> dict
     Useful as a static/historical baseline feature for the Forecasting Engine.
     """
     if not gee_initialized:
+        print("❌ DEBUG - Satellite Data Fetch Skipped: GEE not initialized.")
         return {"error": "Google Earth Engine not initialized."}
 
     try:
@@ -133,10 +140,14 @@ def get_satellite_no2(lat: float, lon: float, buffer_meters: int = 1000) -> dict
         if no2_val is not None:
             return {"satellite_no2_density": no2_val}
         else:
+            print("⚠️ DEBUG - Satellite NO2 data returned None (likely cloud cover).")
             return {"error": "No NO2 data available for this region today (likely cloud cover)."}
 
     except Exception as e:
+        print(f"❌ DEBUG - GEE Satellite API Error: {e}")
         return {"error": f"GEE API request failed: {e}"}
+    
+    
 
 # ==========================================
 # 3. SYSTEM TEST (Run this file directly to test)
